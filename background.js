@@ -5,8 +5,8 @@
 'use strict';
 
 chrome.runtime.onInstalled.addListener(function() {
-  //getTabs()
-  //chrome.tabs.onCreated.addListener(getTabs)
-  //chrome.tabs.onUpdated.addListener(getTabs);
+  closeProhibited()
 });
 
+chrome.tabs.onUpdated.addListener(closeProhibited);
+chrome.tabs.onCreated.addListener(closeProhibited)
