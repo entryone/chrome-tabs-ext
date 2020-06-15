@@ -2,7 +2,7 @@
   "name": "Tabs Manager",
   "version": "1.0",
   "description": "Auto suspend and close",
-  "permissions": ["activeTab", "declarativeContent", "storage", "tabs"],
+  "permissions": ["activeTab", "declarativeContent", "storage", "tabs", "http://*/", "https://*/"],
   "options_page": "options/index.html",
   "background": {
     "scripts": ["common/functions.js", "background.js"],
@@ -23,5 +23,6 @@
     "48": "images/popup_btn_48.png",
     "128": "images/popup_btn_128.png"
   },
-  "manifest_version": 2
+  "manifest_version": 2,
+  "web_accessible_resources": ["images/stay-focused.jpg"]
 }

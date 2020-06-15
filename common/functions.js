@@ -28,16 +28,30 @@ const closeEmpty = () => {
   iterateAllTabs(close)
 }
 
-const closeProhibited = () => {
+const writeBlockerMessage = (tabId) => {
+  const url = chrome.extension.getURL('images/stay-focused.jpg');
+  const image = '<img height="300" src="' + url + '" />'
+  const execute = code => chrome.tabs.executeScript(tabId, {code})
+  execute('document.body.style.textAlign = "center"')
+  execute('document.body.style.backgroundColor = "#FFF"')
+  execute('document.body.style.overflow = "hidden"')
+  execute('document.body.style.marginTop = "300px"')
+  execute('document.body.innerHTML = \'' + image + '\'')
+}
 
+
+const closeProhibited = ({close = false} = {}) => {
   chrome.storage.sync.get('prohibitedSites', function(data) {
     const prohibited = data.prohibitedSites.split(/\n/)
-    const close = tab => {
+    const doClose = tab => {
       const hostName = extractHostname(tab.url)
       const isProhibited = !!prohibited.find(prohibitedHost => ( hostName === prohibitedHost.trim() || hostName === 'www.' + prohibitedHost.trim() ))
-      isProhibited && chrome.tabs.remove(tab.id)
+      if (isProhibited) {
+        !close && writeBlockerMessage(tab.id)
+        close && chrome.tabs.remove(tab.id)
+      }
     }
-    iterateAllTabs(close)
+    iterateAllTabs(doClose)
   });
 }
 
