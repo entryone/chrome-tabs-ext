@@ -37,6 +37,9 @@ const writeBlockerMessage = (tabId) => {
   execute('document.body.style.overflow = "hidden"')
   execute('document.body.style.marginTop = "300px"')
   execute('document.body.innerHTML = \'' + image + '\'')
+  execute('document.body.className = ""')
+  //execute('document.head.innerHTML = "<title>Stay Focused</title>"')
+  execute('document.head.innerHTML = ""')
 }
 
 
