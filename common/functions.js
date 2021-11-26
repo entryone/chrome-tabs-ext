@@ -28,6 +28,10 @@ const closeEmpty = () => {
   iterateAllTabs(close)
 }
 
+const redirectToBlockerWebsite = () => {
+  chrome.tabs.update(undefined, { url: 'https://todoist.com/app/upcoming' });
+}
+
 const writeBlockerMessage = (tabId) => {
   const url = chrome.extension.getURL('images/stay-focused.jpg');
   const image = '<img height="300" src="' + url + '" />'
@@ -50,7 +54,7 @@ const closeProhibited = ({close = false} = {}) => {
       const hostName = extractHostname(tab.url)
       const isProhibited = !!prohibited.find(prohibitedHost => ( hostName === prohibitedHost.trim() || hostName === 'www.' + prohibitedHost.trim() ))
       if (isProhibited) {
-        !close && writeBlockerMessage(tab.id)
+        !close && redirectToBlockerWebsite()// writeBlockerMessage(tab.id)
         close && chrome.tabs.remove(tab.id)
       }
     }
