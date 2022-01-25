@@ -46,25 +46,20 @@ const writeBlockerMessage = (tabId) => {
   execute('document.head.innerHTML = ""')
 }
 
-let closeTimeout
-
 const closeProhibited = () => {
-  clearTimeout(closeTimeout)
-  closeTimeout = setTimeout(() => {
-    chrome.storage.sync.get('prohibitedSites', function(data) {
-      const prohibited = (data.prohibitedSites || '').split(/\n/)
-      const doClose = tab => {
-        const hostName = extractHostname(tab.url)
-        const url = new URL(tab.url)
-        const isProhibited = !!prohibited.filter(host => host.trim() !== '').find(prohibitedHost => (hostName === prohibitedHost.trim() || hostName === 'www.' + prohibitedHost.trim() ))
-        if (isProhibited && url.hostname !== 'todoist.com') {
-          console.error('host', hostName)
-          setTimeout(() => {redirectToBlockerWebsite(tab)}, 1000)
-        }
+  chrome.storage.sync.get('prohibitedSites', function(data) {
+    const prohibited = (data.prohibitedSites || '').split(/\n/)
+    const doClose = tab => {
+      const hostName = extractHostname(tab.url)
+      const url = new URL(tab.url)
+      const isProhibited = !!prohibited.filter(host => host.trim() !== '').find(prohibitedHost => (hostName === prohibitedHost.trim() || hostName === 'www.' + prohibitedHost.trim() ))
+      if (isProhibited) {
+        console.error('host', hostName)
+       redirectToBlockerWebsite(tab)
       }
-      iterateAllTabs(doClose)
-    });
-  }, 1000)
+    }
+    iterateAllTabs(doClose)
+  });
 }
 
 
