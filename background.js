@@ -5,8 +5,16 @@
 'use strict';
 
 chrome.runtime.onInstalled.addListener(function() {
+  //console.error('on installed')
   closeProhibited()
 });
 
-chrome.tabs.onUpdated.addListener(closeProhibited);
-chrome.tabs.onCreated.addListener(closeProhibited)
+chrome.tabs.onUpdated.addListener( (ev, ff, tab) => {
+  //console.error('on update', tab.url)
+  closeProhibited()
+})
+
+chrome.tabs.onCreated.addListener( () => {
+  //console.error('on create')
+  closeProhibited()
+})

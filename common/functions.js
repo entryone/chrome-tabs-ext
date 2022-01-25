@@ -28,8 +28,8 @@ const closeEmpty = () => {
   iterateAllTabs(close)
 }
 
-const redirectToBlockerWebsite = () => {
-  chrome.tabs.update(undefined, { url: 'https://todoist.com/app/upcoming' });
+const redirectToBlockerWebsite = tab => {
+  chrome.tabs.update(tab.id, { url: 'https://todoist.com/app/upcoming' });
 }
 
 const writeBlockerMessage = (tabId) => {
@@ -46,20 +46,25 @@ const writeBlockerMessage = (tabId) => {
   execute('document.head.innerHTML = ""')
 }
 
+let closeTimeout
 
-const closeProhibited = ({close = false} = {}) => {
-  chrome.storage.sync.get('prohibitedSites', function(data) {
-    const prohibited = data.prohibitedSites.split(/\n/)
-    const doClose = tab => {
-      const hostName = extractHostname(tab.url)
-      const isProhibited = !!prohibited.find(prohibitedHost => ( hostName === prohibitedHost.trim() || hostName === 'www.' + prohibitedHost.trim() ))
-      if (isProhibited) {
-        !close && redirectToBlockerWebsite()// writeBlockerMessage(tab.id)
-        close && chrome.tabs.remove(tab.id)
+const closeProhibited = () => {
+  clearTimeout(closeTimeout)
+  closeTimeout = setTimeout(() => {
+    chrome.storage.sync.get('prohibitedSites', function(data) {
+      const prohibited = (data.prohibitedSites || '').split(/\n/)
+      const doClose = tab => {
+        const hostName = extractHostname(tab.url)
+        const url = new URL(tab.url)
+        const isProhibited = !!prohibited.filter(host => host.trim() !== '').find(prohibitedHost => (hostName === prohibitedHost.trim() || hostName === 'www.' + prohibitedHost.trim() ))
+        if (isProhibited && url.hostname !== 'todoist.com') {
+          console.error('host', hostName)
+          setTimeout(() => {redirectToBlockerWebsite(tab)}, 1000)
+        }
       }
-    }
-    iterateAllTabs(doClose)
-  });
+      iterateAllTabs(doClose)
+    });
+  }, 1000)
 }
 
 
@@ -74,4 +79,12 @@ function extractHostname(url) {
   hostname = hostname.split(':')[0];
   hostname = hostname.split('?')[0];
   return hostname;
+}
+
+const login = () => {
+
+  const userEl = document.querySelector('#username-Email-undefined-11821');
+  console.warn('login', userEl)
+  const passwordEl = document.getElementsByClassName('t_password');
+  userEl.value = 'test@datatile.eu'
 }
