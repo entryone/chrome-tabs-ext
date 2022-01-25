@@ -1,3 +1,3 @@
 # chrome-tabs-ext
-Block websites according your own list
+Block websites according to your own list
 
