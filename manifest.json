@@ -3,13 +3,13 @@
   "version": "1.0",
   "description": "Auto suspend and close",
   "permissions": ["activeTab", "declarativeContent", "storage", "tabs", "http://*/", "https://*/"],
-  "options_page": "options/index.html",
+  "options_page": "options/dist/index.html",
   "background": {
     "scripts": ["common/functions.js", "background.js"],
     "persistent": false
   },
   "browser_action": {
-    "default_popup": "popup/index.html",
+    "default_popup": "popup/dist/index.html",
     "default_icon": {
       "16": "images/popup_btn_16.png",
       "32": "images/popup_btn_32.png",

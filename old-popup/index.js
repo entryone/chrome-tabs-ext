@@ -1,4 +1,6 @@
 'use strict';
+import React from 'react'
+import ReactDom from 'react-dom'
 
 //let doButton = document.getElementById('doButton');
 
@@ -17,3 +19,7 @@ document.addEventListener("DOMContentLoaded", function() {
     login()
   }
 });
+
+console.error('app', document.getElementById('app'))
+
+React.render(<p>Hello</p>, document.getElementById('app'))
