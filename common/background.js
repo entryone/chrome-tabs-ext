@@ -1,4 +1,19 @@
 
+chrome.runtime.onInstalled.addListener(function() {
+  //console.error('on installed')
+  closeProhibited()
+});
+
+chrome.tabs.onUpdated.addListener( (ev, ff, tab) => {
+  //console.error('on update', tab.url)
+  closeProhibited()
+})
+
+chrome.tabs.onCreated.addListener( () => {
+  //console.error('on create')
+  closeProhibited()
+})
+
 const iterateAllTabs = onTab => {
   chrome.windows.getAll({populate:true},function(windows){
     windows.forEach(function(window){
@@ -46,7 +61,7 @@ const writeBlockerMessage = (tabId) => {
   execute('document.head.innerHTML = ""')
 }
 
-const closeProhibited = () => {
+export function closeProhibited () {
   chrome.storage.sync.get('prohibitedSites', function(data) {
     const prohibited = (data.prohibitedSites || '').split(/\n/)
     const doClose = tab => {
@@ -54,8 +69,8 @@ const closeProhibited = () => {
       const url = new URL(tab.url)
       const isProhibited = !!prohibited.filter(host => host.trim() !== '').find(prohibitedHost => (hostName === prohibitedHost.trim() || hostName === 'www.' + prohibitedHost.trim() ))
       if (isProhibited) {
-        console.error('host', hostName)
-       redirectToBlockerWebsite(tab)
+        //console.error('host', hostName)
+        redirectToBlockerWebsite(tab)
       }
     }
     iterateAllTabs(doClose)
@@ -63,7 +78,7 @@ const closeProhibited = () => {
 }
 
 
-function extractHostname(url) {
+export function extractHostname(url) {
   var hostname;
   if (url.indexOf("//") > -1) {
     hostname = url.split('/')[2];
@@ -74,12 +89,4 @@ function extractHostname(url) {
   hostname = hostname.split(':')[0];
   hostname = hostname.split('?')[0];
   return hostname;
-}
-
-const login = () => {
-
-  const userEl = document.querySelector('#username-Email-undefined-11821');
-  console.warn('login', userEl)
-  const passwordEl = document.getElementsByClassName('t_password');
-  userEl.value = 'test@datatile.eu'
 }

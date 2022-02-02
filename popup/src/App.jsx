@@ -1,12 +1,18 @@
+import '@fontsource/roboto/300.css'
+import '@fontsource/roboto/400.css'
+import '@fontsource/roboto/500.css'
+import '@fontsource/roboto/700.css'
+import Button from '@mui/material/Button'
 import { useState, useEffect } from 'react'
 import './App.css'
+import { closeProhibited, extractHostname } from '../../common/background'
 
 function App() {
-  const [sites, setSites] = useState('')
+  const [hostName, setCurrentHostName] = useState('')
 
   useEffect(() => {
-    chrome.storage.sync.get('prohibitedSites', function(data) {
-      setSites(data.prohibitedSites || '')
+    chrome.tabs.getSelected(null, function(tab) {
+      setCurrentHostName(tab.url)
     });
   }, [])
 
@@ -14,15 +20,21 @@ function App() {
     setSites(e.target.value)
   }
 
-  const onSave = () => {
-    chrome.storage.sync.set({prohibitedSites: sites}, function() {
-      //log('set');
-    })
+  const onAdd= () => {
+    chrome.storage.sync.get('prohibitedSites', function(data) {
+      chrome.tabs.getSelected(null, function(tab) {
+        const sites = data.prohibitedSites + '\n' + extractHostname(tab.url)
+        chrome.storage.sync.set({prohibitedSites: sites}, () => {
+          closeProhibited()
+        })
+      });
+    });
+
   }
 
   return (
     <div className="App">
-      Hello world
+        <Button variant="outlined" onClick={onAdd} >Block {extractHostname(hostName)}</Button>
     </div>
   )
 }

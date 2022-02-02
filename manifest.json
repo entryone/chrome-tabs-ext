@@ -2,11 +2,10 @@
   "name": "Tabs Manager",
   "version": "1.0",
   "description": "Auto suspend and close",
-  "permissions": ["activeTab", "declarativeContent", "storage", "tabs", "http://*/", "https://*/"],
+  "permissions": ["activeTab", "declarativeContent", "storage", "tabs", "http://*/", "https://*/", "contextMenus"],
   "options_page": "options/dist/index.html",
   "background": {
-    "scripts": ["common/functions.js", "background.js"],
-    "persistent": false
+    "page": "background.html"
   },
   "browser_action": {
     "default_popup": "popup/dist/index.html",
