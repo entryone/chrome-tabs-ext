@@ -61,6 +61,8 @@ const writeBlockerMessage = (tabId) => {
   execute('document.head.innerHTML = ""')
 }
 
+let closeTimeout
+
 export function closeProhibited () {
   chrome.storage.sync.get('prohibitedSites', function(data) {
     chrome.storage.sync.get('givenMinuteTime', function(time) {
@@ -70,7 +72,11 @@ export function closeProhibited () {
         const givenTime =  new Date(parseInt(time.givenMinuteTime)).getTime()
         const seconds = (now.getTime() - givenTime) / 1000
         console.error('seconds', seconds)
-        if (seconds < 60) return
+        if (seconds < 60) {
+          clearTimeout(closeTimeout)
+          closeTimeout = setTimeout(closeProhibited, (60 - seconds) * 1000 - 10)
+          return
+        }
       }
       const prohibited = (data.prohibitedSites || '').split(/\n/)
       const doClose = tab => {
