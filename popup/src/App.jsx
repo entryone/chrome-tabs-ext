@@ -29,12 +29,18 @@ function App() {
         })
       });
     });
+  }
 
+  const onGiveMeMinute = () => {
+    chrome.storage.sync.set({givenMinuteTime: Date.now().toString()}, () => {
+
+    })
   }
 
   return (
     <div className="App">
         <Button variant="outlined" onClick={onAdd} >Block {extractHostname(hostName)}</Button>
+        <Button variant="outlined" onClick={onGiveMeMinute} >Give me a minute</Button>
     </div>
   )
 }

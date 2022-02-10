@@ -63,17 +63,26 @@ const writeBlockerMessage = (tabId) => {
 
 export function closeProhibited () {
   chrome.storage.sync.get('prohibitedSites', function(data) {
-    const prohibited = (data.prohibitedSites || '').split(/\n/)
-    const doClose = tab => {
-      const hostName = extractHostname(tab.url)
-      const url = new URL(tab.url)
-      const isProhibited = !!prohibited.filter(host => host.trim() !== '').find(prohibitedHost => (hostName === prohibitedHost.trim() || hostName === 'www.' + prohibitedHost.trim() ))
-      if (isProhibited) {
-        //console.error('host', hostName)
-        redirectToBlockerWebsite(tab)
+    chrome.storage.sync.get('givenMinuteTime', function(time) {
+
+      if (time.givenMinuteTime) {
+        const now = new Date()
+        const givenTime =  new Date(parseInt(time.givenMinuteTime)).getTime()
+        const seconds = (now.getTime() - givenTime) / 1000
+        console.error('seconds', seconds)
+        if (seconds < 60) return
       }
-    }
-    iterateAllTabs(doClose)
+      const prohibited = (data.prohibitedSites || '').split(/\n/)
+      const doClose = tab => {
+        const hostName = extractHostname(tab.url)
+        const url = new URL(tab.url)
+        const isProhibited = !!prohibited.filter(host => host.trim() !== '').find(prohibitedHost => (hostName === prohibitedHost.trim() || hostName === 'www.' + prohibitedHost.trim() ))
+        if (isProhibited) {
+          redirectToBlockerWebsite(tab)
+        }
+      }
+      iterateAllTabs(doClose)
+    });
   });
 }
 
