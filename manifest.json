@@ -1,7 +1,7 @@
 {
-  "name": "Tabs Manager",
-  "version": "1.0",
-  "description": "Auto suspend and close",
+  "name": "Tabs Killer",
+  "version": "2.0",
+  "description": "Auto kill your forbidden tabs",
   "permissions": ["activeTab", "declarativeContent", "storage", "tabs", "http://*/", "https://*/", "contextMenus"],
   "options_page": "options/dist/index.html",
   "background": {
