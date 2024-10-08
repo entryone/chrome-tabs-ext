@@ -1,8 +1,8 @@
 
-chrome.runtime.onInstalled.addListener(function() {
+/*chrome.runtime.onInstalled.addListener(function() {
   //console.error('on installed')
   closeProhibited()
-});
+});*/
 
 chrome.tabs.onUpdated.addListener( (ev, ff, tab) => {
   //console.error('on update', tab.url)
@@ -14,7 +14,7 @@ chrome.tabs.onCreated.addListener( () => {
   closeProhibited()
 })
 
-const iterateAllTabs = onTab => {
+function iterateAllTabs  (onTab) {
   chrome.windows.getAll({populate:true},function(windows){
     windows.forEach(function(window){
       window.tabs.forEach(function(tab){
@@ -43,7 +43,7 @@ const closeEmpty = () => {
   iterateAllTabs(close)
 }
 
-const redirectToBlockerWebsite = tab => {
+function redirectToBlockerWebsite(tab)  {
   chrome.tabs.update(tab.id, { url: 'https://todoist.com/app/upcoming' });
 }
 
@@ -63,7 +63,7 @@ const writeBlockerMessage = (tabId) => {
 
 let closeTimeout
 
-export function closeProhibited () {
+function closeProhibited () {
   chrome.storage.sync.get('prohibitedSites', function(data) {
     chrome.storage.sync.get('givenMinuteTime', function(time) {
 
@@ -71,7 +71,6 @@ export function closeProhibited () {
         const now = new Date()
         const givenTime =  new Date(parseInt(time.givenMinuteTime)).getTime()
         const seconds = (now.getTime() - givenTime) / 1000
-        console.error('seconds', seconds)
         if (seconds < 60) {
           clearTimeout(closeTimeout)
           closeTimeout = setTimeout(closeProhibited, (60 - seconds) * 1000 - 10)
@@ -81,7 +80,7 @@ export function closeProhibited () {
       const prohibited = (data.prohibitedSites || '').split(/\n/)
       const doClose = tab => {
         const hostName = extractHostname(tab.url)
-        const url = new URL(tab.url)
+        //const url = new URL(tab.url)
         const isProhibited = !!prohibited.filter(host => host.trim() !== '').find(prohibitedHost => (hostName === prohibitedHost.trim() || hostName === 'www.' + prohibitedHost.trim() ))
         if (isProhibited) {
           redirectToBlockerWebsite(tab)
@@ -93,7 +92,7 @@ export function closeProhibited () {
 }
 
 
-export function extractHostname(url) {
+function extractHostname(url) {
   var hostname;
   if (url.indexOf("//") > -1) {
     hostname = url.split('/')[2];
