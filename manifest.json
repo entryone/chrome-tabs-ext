@@ -2,11 +2,14 @@
   "name": "Tabs Killer",
   "version": "2.0",
   "description": "Auto kill your forbidden tabs",
-  "permissions": ["activeTab", "declarativeContent", "storage", "tabs", "contextMenus"],
+  "permissions": ["activeTab", "declarativeContent", "storage", "tabs", "contextMenus", "declarativeNetRequest"],
   "options_page": "options/dist/index.html",
   "background": {
     "service_worker": "./common/background.js"
   },
+  "host_permissions": [
+    "<all_urls>"
+  ],
   "action": {
     "default_popup": "popup/dist/index.html",
     "default_icon": {

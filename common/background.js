@@ -14,6 +14,34 @@ chrome.tabs.onCreated.addListener( () => {
   closeProhibited()
 })
 
+chrome.runtime.onInstalled.addListener(() => {
+  chrome.declarativeNetRequest.updateDynamicRules({
+    removeRuleIds: [1], // Удаляем правило с ID 1, если оно уже существует (для обновления)
+    addRules: [
+      {
+        id: 1,
+        priority: 1,
+        action: {
+          type: "redirect",
+          redirect: {
+            url: "https://www.google.com/"
+          }
+        },
+        condition: {
+          urlFilter: "https://example.com/blocked-page", // Убедитесь, что это совпадает с rules.json
+          resourceTypes: ["main_frame"]
+        }
+      }
+    ]
+  }, () => {
+    if (chrome.runtime.lastError) {
+      console.error("Failed to update declarativeNetRequest rules:", chrome.runtime.lastError);
+    } else {
+      console.log("Declarative Net Request rules updated successfully.");
+    }
+  });
+});
+
 function iterateAllTabs  (onTab) {
   chrome.windows.getAll({populate:true},function(windows){
     windows.forEach(function(window){
@@ -44,7 +72,11 @@ const closeEmpty = () => {
 }
 
 function redirectToBlockerWebsite(tab)  {
-  chrome.tabs.update(tab.id, { url: 'https://todoist.com/app/upcoming' });
+  chrome.storage.sync.get('redirectUrl', function(data) {
+    //setRedirectUrl(data.redirectUrl || '')
+    chrome.tabs.update(tab.id, { url: data.redirectUrl });
+  });
+
 }
 
 const writeBlockerMessage = (tabId) => {

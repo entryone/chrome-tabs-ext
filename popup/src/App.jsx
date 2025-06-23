@@ -107,5 +107,7 @@ function iterateAllTabs  (onTab) {
 }
 
 function redirectToBlockerWebsite(tab)  {
-  chrome.tabs.update(tab.id, { url: 'https://todoist.com/app/upcoming' });
+  chrome.storage.sync.get('redirectUrl', function(data) {
+    chrome.tabs.update(tab.id, { url: data.redirectUrl });
+  });
 }
