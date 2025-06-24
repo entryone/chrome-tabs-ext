@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import './App.css'
 
+import {updateRules} from '../../common/common'
+
 function App() {
   const [sites, setSites] = useState('')
     const [redirectUrl, setRedirectUrl] = useState('')
@@ -24,7 +26,7 @@ function App() {
 
   const onSave = () => {
     chrome.storage.sync.set({prohibitedSites: sites, redirectUrl: redirectUrl}, function() {
-      //log('set');
+        updateRules()
     })
 
   }

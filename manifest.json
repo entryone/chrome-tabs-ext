@@ -5,7 +5,7 @@
   "permissions": ["activeTab", "declarativeContent", "storage", "tabs", "contextMenus", "declarativeNetRequest"],
   "options_page": "options/dist/index.html",
   "background": {
-    "service_worker": "./common/background.js"
+    "service_worker": "./dist/background.js"
   },
   "host_permissions": [
     "<all_urls>"

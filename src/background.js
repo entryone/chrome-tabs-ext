@@ -1,46 +1,27 @@
+import {updateRules} from '../common/common'
 
 /*chrome.runtime.onInstalled.addListener(function() {
   //console.error('on installed')
   closeProhibited()
 });*/
 
+
+
 chrome.tabs.onUpdated.addListener( (ev, ff, tab) => {
   //console.error('on update', tab.url)
-  closeProhibited()
+  //closeProhibited()
 })
 
 chrome.tabs.onCreated.addListener( () => {
   //console.error('on create')
-  closeProhibited()
+  //closeProhibited()
 })
 
 chrome.runtime.onInstalled.addListener(() => {
-  chrome.declarativeNetRequest.updateDynamicRules({
-    removeRuleIds: [1], // Удаляем правило с ID 1, если оно уже существует (для обновления)
-    addRules: [
-      {
-        id: 1,
-        priority: 1,
-        action: {
-          type: "redirect",
-          redirect: {
-            url: "https://www.google.com/"
-          }
-        },
-        condition: {
-          urlFilter: "https://example.com/blocked-page", // Убедитесь, что это совпадает с rules.json
-          resourceTypes: ["main_frame"]
-        }
-      }
-    ]
-  }, () => {
-    if (chrome.runtime.lastError) {
-      console.error("Failed to update declarativeNetRequest rules:", chrome.runtime.lastError);
-    } else {
-      console.log("Declarative Net Request rules updated successfully.");
-    }
-  });
+  updateRules()
 });
+
+
 
 function iterateAllTabs  (onTab) {
   chrome.windows.getAll({populate:true},function(windows){
