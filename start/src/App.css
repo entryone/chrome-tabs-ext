@@ -1,0 +1,9 @@
+.App {
+  text-align: center;
+    padding: 15px;
+}
+
+textarea {
+    width: 400px;
+    height: 400px;
+}

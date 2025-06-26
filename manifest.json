@@ -4,6 +4,9 @@
   "description": "Auto kill your forbidden tabs",
   "permissions": ["activeTab", "declarativeContent", "storage", "tabs", "contextMenus", "declarativeNetRequest"],
   "options_page": "options/dist/index.html",
+  "chrome_url_overrides": {
+    "newtab": "start/dist/index.html"
+  },
   "background": {
     "service_worker": "./dist/background.js"
   },
