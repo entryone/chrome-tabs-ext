@@ -5,6 +5,7 @@ import '@fontsource/roboto/700.css'
 import Button from '@mui/material/Button'
 import { useState, useEffect } from 'react'
 import './App.css'
+import TodoList from "./TodoList";
 //import { closeProhibited, extractHostname } from '../../common/background'
 
 function App() {
@@ -28,8 +29,7 @@ function App() {
 
   return (
     <div className="App">
-        <Button variant="outlined" onClick={onAdd} >Block</Button>
-        <Button variant="outlined" onClick={onGiveMeMinute} >Give me a minute</Button>
+        <TodoList />
     </div>
   )
 }
