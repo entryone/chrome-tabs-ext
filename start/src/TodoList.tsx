@@ -7,7 +7,10 @@ import TodoItem from './TodoItem';
 function TodoList() {
     const todos = useTodoStore((state) => state.todos);
     const addTodo = useTodoStore((state) => state.addTodo);
+    const archiveTodo = useTodoStore((state) => state.archiveTodo);
+
     const [newTodoText, setNewTodoText] = useState<string>(''); // Явно указываем тип string для useState
+    const [showArchive, setShowArchive] = useState<boolean>(true);
 
     const handleAddTodo = (e: FormEvent) => { // Типизируем событие формы
         e.preventDefault();
@@ -16,6 +19,10 @@ function TodoList() {
             setNewTodoText('');
         }
     };
+
+    const activeTodos = todos.filter(t => !t.deleted && !t.archived);
+    const deletedTodos = todos.filter(t => t.deleted && !t.archived);
+    const archivedTodos = todos.filter(t => t.archived);
 
     return (
         <div style={{ fontFamily: 'Arial, sans-serif', maxWidth: '500px', margin: '20px auto', padding: '20px', border: '1px solid #ccc', borderRadius: '8px' }}>
@@ -32,16 +39,53 @@ function TodoList() {
                     Add
                 </button>
             </form>
+
+            {/* Active tasks */}
+            <h2 style={{ marginTop: '10px' }}>Active</h2>
             <ul style={{ listStyle: 'none', padding: 0 }}>
-                {todos.map((todo) => (
+                {activeTodos.map((todo) => (
                     <TodoItem key={todo.id} todo={todo} />
                 ))}
             </ul>
-            {todos.length === 0 && (
-                <p style={{ textAlign: 'center', color: '#666' }}>
-                    No task yet
-                </p>
+            {activeTodos.length === 0 && (
+                <p style={{ textAlign: 'left', color: '#666' }}>No active tasks</p>
             )}
+
+            {/* Deleted tasks */}
+            <h2 style={{ marginTop: '20px' }}>Deleted</h2>
+            <ul style={{ listStyle: 'none', padding: 0 }}>
+                {deletedTodos.map((todo) => (
+                    <li key={todo.id} style={{ display: 'flex', alignItems: 'center', marginBottom: '8px', color: '#999' }}>
+                        <span style={{ flexGrow: 1, textAlign: 'left' }}>{todo.text}</span>
+                        <button onClick={() => archiveTodo(todo.id)} style={{ padding: '5px 10px', cursor: 'pointer' }}>Archive</button>
+                    </li>
+                ))}
+            </ul>
+            {deletedTodos.length === 0 && (
+                <p style={{ textAlign: 'left', color: '#666' }}>No deleted tasks</p>
+            )}
+
+            {/* Archive section with toggle */}
+            <div style={{ marginTop: '20px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <h2 style={{ margin: 0 }}>Archive</h2>
+                    <button onClick={() => setShowArchive(s => !s)} style={{ padding: '4px 8px', cursor: 'pointer' }}>
+                        {showArchive ? 'Hide' : 'Show'}
+                    </button>
+                </div>
+                {showArchive && (
+                    <ul style={{ listStyle: 'none', padding: 0, marginTop: '10px' }}>
+                        {archivedTodos.map((todo) => (
+                            <li key={todo.id} style={{ display: 'flex', alignItems: 'center', marginBottom: '8px', color: '#777' }}>
+                                <span style={{ flexGrow: 1, textAlign: 'left' }}>{todo.text}</span>
+                            </li>
+                        ))}
+                    </ul>
+                )}
+                {showArchive && archivedTodos.length === 0 && (
+                    <p style={{ textAlign: 'left', color: '#666' }}>No archived tasks</p>
+                )}
+            </div>
         </div>
     );
 }
