@@ -46,7 +46,17 @@ export const useTodoStore = create<TodoStore>()(
                 set({
                     focusedId: id
                 })
-            }
+            },
+            renameTodo: (id: number, text: string) =>
+                set(
+                    produce((state: TodoStore) => {
+                        const todo = state.todos.find((t: Todo) => t.id === id);
+                        const newText = text.trim();
+                        if (todo && !todo.deleted && !todo.archived && newText.length > 0) {
+                            todo.text = newText;
+                        }
+                    })
+                )
         }),
         {
             name: 'todo-storage', // уникальное имя для хранилища в localStorage

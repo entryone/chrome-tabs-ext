@@ -15,5 +15,6 @@ export interface TodoStore {
     toggleTodo: (id: number) => void
     focusedId?: number
     setFocusedId: (id: number) => void
+    renameTodo: (id: number, text: string) => void
 }
 

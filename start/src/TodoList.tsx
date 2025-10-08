@@ -67,11 +67,8 @@ function TodoList() {
 
             {/* Archive section with toggle */}
             <div style={{ marginTop: '20px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div onClick={() => setShowArchive(s => !s)} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                     <h2 style={{ margin: 0 }}>Archive</h2>
-                    <button onClick={() => setShowArchive(s => !s)} style={{ padding: '4px 8px', cursor: 'pointer' }}>
-                        {showArchive ? 'Hide' : 'Show'}
-                    </button>
                 </div>
                 {showArchive && (
                     <ul style={{ listStyle: 'none', padding: 0, marginTop: '10px' }}>
