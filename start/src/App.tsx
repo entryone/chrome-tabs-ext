@@ -2,13 +2,14 @@ import '@fontsource/roboto/300.css'
 import '@fontsource/roboto/400.css'
 import '@fontsource/roboto/500.css'
 import '@fontsource/roboto/700.css'
+import { useState, useEffect } from 'react'
 import './App.css'
-import JiraIssues from "./JiraIssues";
+import BitbucketIssues from "./BitbucketIssues";
 
 function App() {
   return (
     <div className="App">
-        <JiraIssues />
+        <BitbucketIssues />
     </div>
   )
 }
