@@ -2,10 +2,16 @@ import '@fontsource/roboto/300.css'
 import '@fontsource/roboto/400.css'
 import '@fontsource/roboto/500.css'
 import '@fontsource/roboto/700.css'
-import Button from '@mui/material/Button'
+import List from '@mui/material/List'
+import ListItem from '@mui/material/ListItem'
+import ListItemButton from '@mui/material/ListItemButton'
+import ListItemIcon from '@mui/material/ListItemIcon'
+import ListItemText from '@mui/material/ListItemText'
+import BlockIcon from '@mui/icons-material/Block'
+import AccessTimeIcon from '@mui/icons-material/AccessTime'
+import SettingsIcon from '@mui/icons-material/Settings'
 import { useState, useEffect } from 'react'
 import './App.css'
-//import { closeProhibited, extractHostname } from '../../common/background'
 
 function App() {
   const [hostName, setCurrentHostName] = useState('')
@@ -19,11 +25,7 @@ function App() {
     });
   }, [])
 
-  const onChange = e => {
-    setSites(e.target.value)
-  }
-
-  const onAdd= () => {
+  const onAdd = () => {
     chrome.storage.sync.get('prohibitedSites', function(data) {
       chrome.tabs.query({
         active: true,
@@ -39,14 +41,55 @@ function App() {
 
   const onGiveMeMinute = () => {
     chrome.storage.sync.set({givenMinuteTime: Date.now().toString()}, () => {
-
+      // Можно показать уведомление об успехе
     })
   }
 
+  const onOpenSettings = () => {
+    chrome.runtime.openOptionsPage()
+  }
+
+  const currentHost = extractHostname(hostName || '')
+
   return (
     <div className="App">
-        <Button variant="outlined" onClick={onAdd} >Block {extractHostname(hostName || '')}</Button>
-        <Button variant="outlined" onClick={onGiveMeMinute} >Give me a minute</Button>
+      <List sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper', padding: 0 }}>
+        <ListItem disablePadding>
+          <ListItemButton onClick={onAdd}>
+            <ListItemIcon>
+              <BlockIcon color="error" />
+            </ListItemIcon>
+            <ListItemText 
+              primary="Block Site" 
+              secondary={currentHost ? currentHost : 'No site detected'} 
+            />
+          </ListItemButton>
+        </ListItem>
+        
+        <ListItem disablePadding>
+          <ListItemButton onClick={onGiveMeMinute}>
+            <ListItemIcon>
+              <AccessTimeIcon color="primary" />
+            </ListItemIcon>
+            <ListItemText 
+              primary="Give me a minute" 
+              secondary="Temporarily disable blocking" 
+            />
+          </ListItemButton>
+        </ListItem>
+
+        <ListItem disablePadding>
+          <ListItemButton onClick={onOpenSettings}>
+            <ListItemIcon>
+              <SettingsIcon />
+            </ListItemIcon>
+            <ListItemText 
+              primary="Settings" 
+              secondary="Configure blocked sites" 
+            />
+          </ListItemButton>
+        </ListItem>
+      </List>
     </div>
   )
 }
@@ -111,3 +154,4 @@ function redirectToBlockerWebsite(tab)  {
     chrome.tabs.update(tab.id, { url: data.redirectUrl });
   });
 }
+

@@ -1,9 +1,12 @@
 .App {
-  text-align: center;
-    padding: 15px;
+  width: 320px;
+  min-height: 200px;
 }
 
-textarea {
-    width: 400px;
-    height: 400px;
+.MuiListItem-root {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.MuiListItem-root:last-child {
+  border-bottom: none;
 }
