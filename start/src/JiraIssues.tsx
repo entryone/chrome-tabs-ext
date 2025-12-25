@@ -110,7 +110,7 @@ function JiraIssues() {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    jql: 'assignee=currentUser() AND status != Done AND status != Closed ORDER BY updated DESC',
+                    jql: '(assignee=currentUser() OR participants=currentUser()) AND status = "In Progress" ORDER BY updated DESC',
                     maxResults: 50,
                     fields: ['summary', 'status', 'priority', 'issuetype', 'assignee', 'updated', 'created', 'description'],
                 }),
