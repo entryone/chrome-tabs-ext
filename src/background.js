@@ -19,7 +19,126 @@ chrome.tabs.onCreated.addListener( () => {
 
 chrome.runtime.onInstalled.addListener(() => {
   updateRules()
+  updateIcon()
 });
+
+// Функция для создания иконки через Canvas
+function createIconImageData(size, color) {
+  const canvas = new OffscreenCanvas(size, size);
+  const ctx = canvas.getContext('2d');
+  
+  // Очищаем canvas
+  ctx.clearRect(0, 0, size, size);
+  
+  if (color === 'red') {
+    // Красная иконка - крестик в рамке
+    ctx.strokeStyle = '#d32f2f';
+    ctx.lineWidth = Math.max(2, size / 20);
+    
+    // Рамка
+    const padding = size / 8;
+    const rectSize = size - padding * 2;
+    ctx.strokeRect(padding, padding, rectSize, rectSize);
+    
+    // Крестик
+    const crossPadding = size / 4;
+    ctx.beginPath();
+    ctx.moveTo(crossPadding, crossPadding);
+    ctx.lineTo(size - crossPadding, size - crossPadding);
+    ctx.moveTo(size - crossPadding, crossPadding);
+    ctx.lineTo(crossPadding, size - crossPadding);
+    ctx.stroke();
+  } else {
+    // Зеленая иконка - галочка в круге (увеличенная)
+    ctx.fillStyle = '#388e3c';
+    ctx.strokeStyle = '#388e3c';
+    ctx.lineWidth = Math.max(2, size / 20);
+    
+    // Круг (больше - используем 40% размера вместо 25%)
+    const centerX = size / 2;
+    const centerY = size / 2;
+    const radius = size * 0.4; // Увеличено с 0.25 до 0.4
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+    ctx.fill();
+    
+    // Галочка (больше)
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = Math.max(3, size / 12); // Увеличена толщина линии
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.beginPath();
+    // Увеличенные координаты галочки
+    ctx.moveTo(centerX - radius * 0.5, centerY);
+    ctx.lineTo(centerX - radius * 0.1, centerY + radius * 0.4);
+    ctx.lineTo(centerX + radius * 0.5, centerY - radius * 0.3);
+    ctx.stroke();
+  }
+  
+  return ctx.getImageData(0, 0, size, size);
+}
+
+// Функция для обновления иконки в зависимости от состояния блокировки
+function updateIcon() {
+  chrome.storage.sync.get('givenMinuteTime', function(time) {
+    const isBlockingActive = !isBlockingPaused(time.givenMinuteTime);
+    const color = isBlockingActive ? 'red' : 'green';
+    
+    // Создаем иконки разных размеров
+    const imageData = {
+      16: createIconImageData(16, color),
+      32: createIconImageData(32, color),
+      48: createIconImageData(48, color),
+      128: createIconImageData(128, color)
+    };
+    
+    chrome.action.setIcon({ imageData: imageData });
+  });
+}
+
+// Проверка, активна ли пауза блокировки
+function isBlockingPaused(givenMinuteTime) {
+  if (!givenMinuteTime) {
+    return false;
+  }
+  const now = new Date();
+  const givenTime = new Date(parseInt(givenMinuteTime)).getTime();
+  const seconds = (now.getTime() - givenTime) / 1000;
+  return seconds < 60;
+}
+
+// Обновляем иконку и правила при изменении storage
+chrome.storage.onChanged.addListener((changes, areaName) => {
+  if (areaName === 'sync') {
+    if (changes.givenMinuteTime) {
+      updateIcon();
+      // Обновляем правила блокировки при изменении паузы
+      updateRules();
+    }
+    if (changes.prohibitedSites || changes.redirectUrl) {
+      // Обновляем правила при изменении списка сайтов или URL редиректа
+      updateRules();
+    }
+  }
+});
+
+// Обработчик сообщений для обновления иконки
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.action === 'updateIcon') {
+    updateIcon();
+    sendResponse({success: true});
+  }
+});
+
+// Обновляем иконку при запуске
+updateIcon();
+
+// Периодически проверяем и обновляем иконку и правила (каждые 10 секунд)
+setInterval(() => {
+  updateIcon();
+  // Проверяем, не истекла ли пауза, и обновляем правила
+  updateRules();
+}, 10000);
 
 
 
@@ -87,6 +206,7 @@ function closeProhibited () {
         if (seconds < 60) {
           clearTimeout(closeTimeout)
           closeTimeout = setTimeout(closeProhibited, (60 - seconds) * 1000 - 10)
+          updateIcon() // Обновляем иконку когда пауза истекает
           return
         }
       }
@@ -100,6 +220,7 @@ function closeProhibited () {
         }
       }
       iterateAllTabs(doClose)
+      updateIcon() // Обновляем иконку после проверки
     });
   });
 }
