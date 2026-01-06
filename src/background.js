@@ -1,20 +1,20 @@
-import {updateRules} from '../common/common'
+import {updateRules, closeProhibited} from '../common/common'
 
 /*chrome.runtime.onInstalled.addListener(function() {
   //console.error('on installed')
   closeProhibited()
 });*/
 
-
-
-chrome.tabs.onUpdated.addListener( (ev, ff, tab) => {
-  //console.error('on update', tab.url)
-  //closeProhibited()
+chrome.tabs.onUpdated.addListener( (tabId, changeInfo, tab) => {
+  // Проверяем вкладки при их обновлении (важно для закешированных страниц и PWA)
+  if (changeInfo.status === 'complete' && tab.url) {
+    closeProhibited()
+  }
 })
 
 chrome.tabs.onCreated.addListener( () => {
-  //console.error('on create')
-  //closeProhibited()
+  // Проверяем новые вкладки
+  closeProhibited()
 })
 
 chrome.runtime.onInstalled.addListener(() => {
@@ -193,48 +193,3 @@ const writeBlockerMessage = (tabId) => {
   execute('document.head.innerHTML = ""')
 }
 
-let closeTimeout
-
-function closeProhibited () {
-  chrome.storage.sync.get('prohibitedSites', function(data) {
-    chrome.storage.sync.get('givenMinuteTime', function(time) {
-
-      if (time.givenMinuteTime) {
-        const now = new Date()
-        const givenTime =  new Date(parseInt(time.givenMinuteTime)).getTime()
-        const seconds = (now.getTime() - givenTime) / 1000
-        if (seconds < 60) {
-          clearTimeout(closeTimeout)
-          closeTimeout = setTimeout(closeProhibited, (60 - seconds) * 1000 - 10)
-          updateIcon() // Обновляем иконку когда пауза истекает
-          return
-        }
-      }
-      const prohibited = (data.prohibitedSites || '').split(/\n/)
-      const doClose = tab => {
-        const hostName = extractHostname(tab.url)
-        //const url = new URL(tab.url)
-        const isProhibited = !!prohibited.filter(host => host.trim() !== '').find(prohibitedHost => (hostName === prohibitedHost.trim() || hostName === 'www.' + prohibitedHost.trim() ))
-        if (isProhibited) {
-          redirectToBlockerWebsite(tab)
-        }
-      }
-      iterateAllTabs(doClose)
-      updateIcon() // Обновляем иконку после проверки
-    });
-  });
-}
-
-
-function extractHostname(url) {
-  var hostname;
-  if (url.indexOf("//") > -1) {
-    hostname = url.split('/')[2];
-  }
-  else {
-    hostname = url.split('/')[0];
-  }
-  hostname = hostname.split(':')[0];
-  hostname = hostname.split('?')[0];
-  return hostname;
-}
